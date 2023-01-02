@@ -1,11 +1,6 @@
 package tb.soft;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 
 
 /*
@@ -35,9 +30,9 @@ enum PersonJob {
 	MANAGER("Kierownik"), 
 	DIRECTOR("Dyrektor");
 
-	String jobName;
+	final String jobName;
 
-	private PersonJob(String job_name) {
+	PersonJob(String job_name) {
 		jobName = job_name;
 	}
 
@@ -56,6 +51,7 @@ enum PersonJob {
  */
 class PersonException extends Exception {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	public PersonException(String message) {
@@ -74,12 +70,12 @@ class PersonException extends Exception {
  *     lub 0 (0 oznacza niezdefiniowany rok urodzenia).
  *   - pole job musi zawierać wyłącznie jedną z pozycji zdefiniowanych
  *     w typie wyliczeniowym enum PersonJob.
- *
+
  * Powyższe ograniczenia są kontrolowane i w przypadku próby nadania
  * niedozwolonej wartości, któremuś z atrybutów jest zgłaszany wyjątek
  * zawierający stosowny komunikat.
  */
-public class Person {
+public class Person{
 	
 	private String firstName;
 	private String lastName;
@@ -170,7 +166,7 @@ public class Person {
 	
 	@Override
 	public String toString() {  
-		return firstName + " " + lastName;
+		return firstName + " " + lastName + " " + birthYear + " " + job.toString();
 	}
 	
 	
@@ -204,7 +200,7 @@ public class Person {
 	
 	
 	public static Person readFromFile(String file_name) throws PersonException {
-		try (BufferedReader reader = new BufferedReader(new FileReader(new File(file_name)))) {
+		try (BufferedReader reader = new BufferedReader(new FileReader(file_name))) {
 			return Person.readFromFile(reader);
 		} catch (FileNotFoundException e){
 			throw new PersonException("Nie odnaleziono pliku " + file_name);
@@ -212,5 +208,5 @@ public class Person {
 			throw new PersonException("Wystąpił błąd podczas odczytu danych z pliku.");
 		}	
 	}
-	
+
 }  // koniec klasy Person

@@ -6,33 +6,42 @@ import java.util.Arrays;
  * Program: Aplikacja działająca w oknie konsoli, która umożliwia testowanie 
  *          operacji wykonywanych na obiektach klasy Person.
  *    Plik: PersonConsoleApp.java
- *          
+
  *   Autor: Paweł Rogaliński
  *    Data: październik 2018 r.
  */
 public class PersonConsoleApp {
 
-	private static final String GREETING_MESSAGE = 
-			"Program Person - wersja konsolowa\n" + 
-	        "Autor: Paweł Rogaliński\n" +
-			"Data:  październik 2018 r.\n";
+	private static final String GREETING_MESSAGE =
+			"""
+					Program Person - wersja konsolowa
+					Autor: Paweł Rogaliński
+					Data:  październik 2018 r.
+					""";
 
-	private static final String MENU = 
-			"    M E N U   G Ł Ó W N E  \n" +
-			"1 - Podaj dane nowej osoby \n" +
-			"2 - Usuń dane osoby        \n" +
-			"3 - Modyfikuj dane osoby   \n" +
-			"4 - Wczytaj dane z pliku   \n" +
-			"5 - Zapisz dane do pliku   \n" +
-			"0 - Zakończ program        \n";	
+	private static final String MENU =
+			"""
+					    M E N U   G Ł Ó W N E \s
+					1 - Podaj dane nowej osoby\s
+					2 - Usuń dane osoby       \s
+					3 - Modyfikuj dane osoby  \s
+					4 - Wczytaj dane z pliku  \s
+					5 - Zapisz dane do pliku  \s
+					6 - Wypisz listę osób     \s
+					7 - Ponowne dodanie tej samej osoby \s
+					8 - Przełącz typ klasy osoby\s
+					0 - Zakończ program       \s
+					""";
 	
-	private static final String CHANGE_MENU = 
-			"   Co zmienić?     \n" + 
-	        "1 - Imię           \n" + 
-			"2 - Nazwisko       \n" + 
-	        "3 - Rok urodzenia  \n" + 
-			"4 - Stanowisko     \n" +
-	        "0 - Powrót do menu głównego\n";
+	private static final String CHANGE_MENU =
+			"""
+					   Co zmienić?    \s
+					1 - Imię          \s
+					2 - Nazwisko      \s
+					3 - Rok urodzenia \s
+					4 - Stanowisko    \s
+					0 - Powrót do menu głównego
+					""";
 
 	
 	/**
@@ -50,13 +59,11 @@ public class PersonConsoleApp {
 		application.runMainLoop();
 	} 
 
-	
 	/*
 	 *  Referencja do obiektu, który zawiera dane aktualnej osoby.
 	 */
 	private Person currentPerson = null;
-	
-	
+
 	/*
 	 *  Metoda runMainLoop wykonuje główną pętlę aplikacji.
 	 *  UWAGA: Ta metoda zawiera nieskończoną pętlę,
@@ -65,46 +72,61 @@ public class PersonConsoleApp {
 	 */
 	public void runMainLoop() {
 		UI.printMessage(GREETING_MESSAGE);
+		Kolekcje kolekcje = new Kolekcje();
+		boolean isPersonExtended = false;
 
 		while (true) {
 			UI.clearConsole();
 			showCurrentPerson();
 
 			try {
-				switch (UI.enterInt(MENU + "==>> ")) {
-				case 1:
-					// utworzenie nowej osoby
-					currentPerson = createNewPerson();
-					break;
-				case 2:
-					// usunięcie danych aktualnej osoby.
-					currentPerson = null;
-					UI.printInfoMessage("Dane aktualnej osoby zostały usunięte");
-					break;
-				case 3:
-					// zmiana danych dla aktualnej osoby
-					if (currentPerson == null) throw new PersonException("Żadna osoba nie została utworzona.");
-					changePersonData(currentPerson);
-					break;
-				case 4: {
-					// odczyt danych z pliku tekstowego.
-					String file_name = UI.enterString("Podaj nazwę pliku: ");
-					currentPerson = Person.readFromFile(file_name);
-					UI.printInfoMessage("Dane aktualnej osoby zostały wczytane z pliku " + file_name);
-				}
-					break;
-				case 5: {
-					// zapis danych aktualnej osoby do pliku tekstowego 
-					String file_name = UI.enterString("Podaj nazwę pliku: ");
-					Person.printToFile(file_name, currentPerson);
-					UI.printInfoMessage("Dane aktualnej osoby zostały zapisane do pliku " + file_name);
-				}
-
-					break;
-				case 0:
-					// zakończenie działania programu
-					UI.printInfoMessage("\nProgram zakończył działanie!");
-					System.exit(0);
+				switch (UI.enterInt(MENU + "ExtendedPerson: " +  isPersonExtended + "\n==>> ")) {
+					case 1 -> {
+						// utworzenie nowej osoby
+						currentPerson = createNewPerson();
+						if(currentPerson != null)
+							if(isPersonExtended)
+								kolekcje.addElement(new Person2(currentPerson));
+							else kolekcje.addElement(currentPerson);
+					}
+					case 2 -> {
+						// usunięcie danych aktualnej osoby.
+						currentPerson = null;
+						UI.printInfoMessage("Dane aktualnej osoby zostały usunięte");
+					}
+					case 3 -> {
+						// zmiana danych dla aktualnej osoby
+						if (currentPerson == null) throw new PersonException("Żadna osoba nie została utworzona.");
+						changePersonData(currentPerson);
+					}
+					case 4 -> {
+						// odczyt danych z pliku tekstowego.
+						String file_name = UI.enterString("Podaj nazwę pliku: ");
+						currentPerson = Person.readFromFile(file_name);
+						UI.printInfoMessage("Dane aktualnej osoby zostały wczytane z pliku " + file_name);
+					}
+					case 5 -> {
+						// zapis danych aktualnej osoby do pliku tekstowego
+						String file_name = UI.enterString("Podaj nazwę pliku: ");
+						Person.printToFile(file_name, currentPerson);
+						UI.printInfoMessage("Dane aktualnej osoby zostały zapisane do pliku " + file_name);
+					}
+					case 6 ->
+						// wypisanie dodanych wcześniej osób
+						UI.printInfoMessage(kolekcje.printContents());
+					case 7 -> {
+						// ponowne dodanie tej samej osoby
+						if (isPersonExtended)
+							kolekcje.addElement(new Person2(currentPerson));
+						else kolekcje.addElement(currentPerson);
+					}
+					case 8 ->
+						isPersonExtended = !isPersonExtended;
+					case 0 -> {
+						// zakończenie działania programu
+						UI.printInfoMessage("\nProgram zakończył działanie!");
+						System.exit(0);
+					}
 				} // koniec instrukcji switch
 			} catch (PersonException e) { 
 				// Tu są wychwytywane wyjątki zgłaszane przez metody klasy Person,
